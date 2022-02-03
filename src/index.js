@@ -7,7 +7,7 @@ import answers from './answers'
 const numOfFields = 5;
 const numOfRows = 6;
 const answer = answers[getRandomInt(2080)];
-console.log(answer);
+//console.log(answer);
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
@@ -74,6 +74,8 @@ const handleChange = e => {
               alert("Sorry you did not win, the correct answer was: " + answer);
               window.location.reload(false);
             }
+          } else {
+            alert("Sorry that is not a valid word, please try again");
           }
         }
     }
