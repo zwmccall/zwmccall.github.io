@@ -51,7 +51,11 @@ body {
   }
 
   .inactive-square {
-    background: #D3D3D3;
+    background: black;
+  }
+
+  .grey-square {
+    background: grey;
   }
   
   .green-square {

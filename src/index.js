@@ -7,18 +7,116 @@ import answers from './answers'
 const numOfFields = 5;
 const numOfRows = 6;
 const answer = answers[getRandomInt(2080)];
-//console.log(answer);
+
+//Dev tools
+console.log(answer);
 
 function getRandomInt(max) {
   return Math.floor(Math.random() * max);
 }
 
+function robotPlay(){
+  var attempt = answers[getRandomInt(2080)];
+  var yellowlist = '';
+  for(var i = 0; i < numOfRows; i++){
+    
+    for(var j = 0; j < numOfFields; j++){
+      const nextSibling = document.querySelector(
+          `input[name=item-${parseInt(i*5, 10) + j}]`
+      );
+      nextSibling.value = attempt.at(j);
+    }
+    console.log(((j*(i+1))-1));
+    processRow(((j*(i+1))-1), i+1);
+    var greenlist;
+    
+    for(var z = 0; z < numOfFields; z++){
+      if(answer.includes(attempt.at(z))){
+        yellowlist += attempt.at(z);
+      }
+    }
+    console.log(yellowlist);
+    //attempt = answers.includes('a');
+    //processRow(4, i+1);
+  }
+}
+
+function bruteForce(){
+    var attempt = answers[getRandomInt(2080)];
+    var numAttempts = 0;
+    while(attempt != answer){
+      attempt = answers[getRandomInt(2080)];
+      numAttempts++;
+    }
+    for(var j = 0; j < numOfFields; j++){
+      const nextSibling = document.querySelector(
+          `input[name=item-${parseInt(0, 10) + j}]`
+      );
+      nextSibling.value = attempt.at(j);
+    }
+    processRow(4, 1, numAttempts);
+}
+
+function processRow(fieldIndex, rowIndex, attempts){
+  var input = '';
+  for(var i = 0; i < numOfFields; i++){
+    const nextSibling = document.querySelector(
+        `input[name=item-${parseInt(fieldIndex-4, 10) + i}]`
+    );
+    input += nextSibling.value;
+  }
+  if(words[input.toLowerCase()]){
+    for(var i = 0; i < numOfFields; i++){
+      const nextSibling = document.querySelector(
+          `input[name=item-${parseInt(fieldIndex-4, 10) + i}]`
+      );
+      nextSibling.classList.add("grey-square");
+      if(answer.includes(input.at(i))){
+        nextSibling.classList.add("yellow-square");
+      }
+      if(input.at(i) == answer.at(i)){
+        nextSibling.classList.remove("yellow-square");
+        nextSibling.classList.add("green-square");
+      }
+    }
+    if(input == answer){
+      
+      if(attempts){
+        alert("It took " + attempts + " attempts to crack the word.");
+      } else {
+        alert("Congrats you won!");
+      }
+    }
+    else if (parseInt(rowIndex, 10) < numOfRows) {
+      const nextRow = document.querySelector(
+        `input[name=item-${parseInt(fieldIndex, 10) + 1}]`
+      );
+      if (nextRow !== null) {
+        for(var i = 1; i < 6; i++){
+          const nextSibling = document.querySelector(
+              `input[name=item-${parseInt(fieldIndex, 10) + i}]`
+          );
+          nextSibling.classList.remove("inactive-square");
+          nextSibling.removeAttribute("disabled");
+        }
+        nextRow.focus();
+      }
+    } else {
+      alert("Sorry you did not win, the correct answer was: " + answer);
+      //window.location.reload(false);
+    }
+  } else {
+    alert("Sorry that is not a valid word, please try again");
+  }
+}
+
 const handleChange = e => {
+  console.log(e);
   const { maxLength, value, name } = e.target;
   const [fieldName, fieldIndex] = name.split("-");
   const [rowName, rowIndex] = e.target.parentElement.getAttribute("name").split("-");
-
   // Check if they hit the max character length
+  console.log("try");
   if (value.length >= maxLength) {
     // Check if it's not the last input field
     if (parseInt(fieldIndex, 10) < (numOfFields * rowIndex) - 1) {
@@ -33,50 +131,7 @@ const handleChange = e => {
       }
     } else {
         if(e.key === 'Enter'){
-          var input = '';
-          for(var i = 0; i < numOfFields; i++){
-            const nextSibling = document.querySelector(
-                `input[name=item-${parseInt(fieldIndex-4, 10) + i}]`
-            );
-            input += nextSibling.value;
-          }
-          if(words[input.toLowerCase()]){
-            for(var i = 0; i < numOfFields; i++){
-              const nextSibling = document.querySelector(
-                  `input[name=item-${parseInt(fieldIndex-4, 10) + i}]`
-              );
-              if(answer.includes(input.at(i))){
-                nextSibling.classList.add("yellow-square");
-              }
-              if(input.at(i) == answer.at(i)){
-                nextSibling.classList.remove("yellow-square");
-                nextSibling.classList.add("green-square");
-              }
-            }
-            if(input == answer){
-              alert("Congrats you won!")
-            }
-            else if (parseInt(rowIndex, 10) < numOfRows) {
-              const nextRow = document.querySelector(
-                `input[name=item-${parseInt(fieldIndex, 10) + 1}]`
-              );
-              if (nextRow !== null) {
-                for(var i = 1; i < 6; i++){
-                  const nextSibling = document.querySelector(
-                      `input[name=item-${parseInt(fieldIndex, 10) + i}]`
-                  );
-                  nextSibling.classList.remove("inactive-square");
-                  nextSibling.removeAttribute("disabled");
-                }
-                nextRow.focus();
-              }
-            } else {
-              alert("Sorry you did not win, the correct answer was: " + answer);
-              window.location.reload(false);
-            }
-          } else {
-            alert("Sorry that is not a valid word, please try again");
-          }
+          processRow(fieldIndex, rowIndex);
         }
     }
   } else {
@@ -173,6 +228,7 @@ class Square extends React.Component {
           </div>
           <div className="game-info">
             <div>{/* status */}</div>
+            <div><button onClick={robotPlay}>Robot Play</button><button onClick={bruteForce}>Brute Force</button><button onClick={() => window.location.reload(false)}>Reset Game</button></div>
             <ol>{/* TODO */}</ol>
           </div>
         </div>
